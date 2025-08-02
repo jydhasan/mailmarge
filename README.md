@@ -83,7 +83,7 @@ Sub ExportEachCustomerToPDFAndSendEmail()
     On Error GoTo 0
 
     If OutlookApp Is Nothing Then
-        MsgBox "Outlook not found.", vbCritical
+        MsgBox "⚠ Outlook not found. Cannot continue.", vbCritical
         Exit Sub
     End If
 
@@ -91,11 +91,6 @@ Sub ExportEachCustomerToPDFAndSendEmail()
         With dataDoc.MailMerge
             .DataSource.FirstRecord = i
             .DataSource.LastRecord = i
-            
-            ' Get email and name from DataFields BEFORE merge execution
-            customerEmail = .DataSource.DataFields("Email").Value
-            customerName = .DataSource.DataFields("Name").Value
-            
             .Destination = wdSendToNewDocument
             .SuppressBlankLines = True
             .Execute Pause:=False
@@ -103,7 +98,15 @@ Sub ExportEachCustomerToPDFAndSendEmail()
 
         Set tempDoc = ActiveDocument
 
-        ' Clean filename to avoid illegal characters
+        ' Read Name and Email from merged paragraphs
+        On Error Resume Next
+        customerName = Trim(Replace(tempDoc.Paragraphs(1).Range.Text, "Name", ""))
+        customerEmail = Trim(Replace(tempDoc.Paragraphs(2).Range.Text, "Email", ""))
+        customerName = Trim(Replace(customerName, vbCr, ""))
+        customerEmail = Trim(Replace(customerEmail, vbCr, ""))
+        On Error GoTo 0
+
+        ' Clean filename
         customerName = Replace(customerName, "\", "")
         customerName = Replace(customerName, "/", "")
         customerName = Replace(customerName, ":", "")
@@ -119,7 +122,7 @@ Sub ExportEachCustomerToPDFAndSendEmail()
         tempDoc.ExportAsFixedFormat OutputFileName:=pdfPath, ExportFormat:=wdExportFormatPDF
         tempDoc.Close False
 
-        ' Validate email before sending
+        ' Validate and send email
         If InStr(customerEmail, "@") > 0 Then
             Set OutlookMail = OutlookApp.CreateItem(0)
             With OutlookMail
@@ -129,15 +132,16 @@ Sub ExportEachCustomerToPDFAndSendEmail()
                         "Thank you for your order. Please find the attached order summary PDF." & vbCrLf & vbCrLf & _
                         "Best regards," & vbCrLf & "Your Company"
                 .Attachments.Add pdfPath
-                .Send  ' Change to .Display if you want to preview before sending
+                .Send  ' Change to .Display if testing
             End With
         Else
-            MsgBox "Invalid email for record #" & i & ": " & customerEmail, vbExclamation
+            MsgBox "Invalid email in record #" & i & ": " & customerEmail, vbExclamation
         End If
     Next i
 
-    MsgBox "✅ All emails with PDFs sent!", vbInformation
+    MsgBox "✅ All emails with PDFs sent successfully!", vbInformation
 End Sub
+
 ```
 # this is the picture
 You must use name as file name after first word
