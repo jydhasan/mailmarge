@@ -139,3 +139,5 @@ Sub ExportEachCustomerToPDFAndSendEmail()
     MsgBox "✅ All emails with PDFs sent!", vbInformation
 End Sub
 ```
+# this is the picture
+<img width="960" height="540" alt="image" src="https://github.com/user-attachments/assets/eaea5176-9591-45bf-a3f6-81a875bd0619" />
