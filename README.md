@@ -143,6 +143,11 @@ Sub ExportEachCustomerToPDFAndSendEmail()
 End Sub
 
 ```
+# .Display  ' <<< Opens the email window for manual review/sending use it will manually send the email 
+  .Attachments.Add pdfPath
+    .Display  ' Shows the email for review
+    Application.Wait Now + TimeValue("0:00:03")  ' Wait 3 seconds before next email
+End With
 # this is the picture
 You must use name as file name after first word
 
